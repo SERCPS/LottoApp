@@ -1,18 +1,17 @@
-name: Build LottoGen EXE (Windows)
+name: Release LottoGen EXE
 
 on:
-  workflow_dispatch:
   push:
-    paths:
-      - 'LottoGen.py'
-      - 'requirements.txt'
-      - '.github/workflows/build.yml'
+    tags:
+      - 'v*'
 
 jobs:
-  build-windows:
+  release-windows:
     runs-on: windows-latest
+    permissions:
+      contents: write
     steps:
-      - name: Check out repo
+      - name: Check out
         uses: actions/checkout@v4
 
       - name: Set up Python
@@ -34,8 +33,8 @@ jobs:
           pyinstaller --noconfirm --clean --onefile --windowed --icon NONE --noupx --name LottoGen --hidden-import=tkinter LottoGen.py
         shell: pwsh
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
         with:
-          name: LottoGen-windows-exe
-          path: dist/LottoGen.exe
+          files: |
+            dist/LottoGen.exe
