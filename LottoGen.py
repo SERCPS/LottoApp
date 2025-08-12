@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-# LottoGen v2.3.0
-# - Stable build baseline (like v2.1) + requested features
-# - Help tab (How To + About), no illustrations
+# LottoGen v2.3.1
+# - Help tab (How To + About)
 # - Tooltips on key controls
 # - Bonus (Top Prob) 4th line for Quick/Smart Pick (requires Update History)
 # - Auto-fallback for history: WCLC → OLG → ALC
@@ -21,7 +20,7 @@ except Exception:
     BeautifulSoup = None
 
 APP_NAME = "LottoGen"
-APP_VER = "2.3.0"
+APP_VER = "2.3.1"
 PRIMARY_HEX = "#1172a1"
 ACCENT = PRIMARY_HEX
 
@@ -213,7 +212,6 @@ def smart_pick(stats, max_n, count, flavor="balanced"):
 
 def top_probability_line(stats, max_n, count, flavor="balanced"):
     base = smart_weight(stats, max_n, flavor)
-    # Pick the top 'count' by weight deterministically
     ranking = sorted(range(1, max_n+1), key=lambda n: base[n], reverse=True)
     line = sorted(ranking[:count])
     return line
@@ -321,7 +319,7 @@ class LottoApp(tk.Tk):
         cols = ("Row", "Numbers")
         tree = ttk.Treeview(root, columns=cols, show="headings", height=14, selectmode="extended")
         tree.heading("#1", text="Row"); tree.heading("#2", text="Numbers")
-        tree.column("#1", width=80, anchor="center"); tree.column("#2", width=640, anchor="w")
+        tree.column("#1", width=120, anchor="center"); tree.column("#2", width=640, anchor="w")
         tree.pack(fill="both", expand=True, padx=12, pady=8)
         tree.bind("<Double-1>", lambda e, g=game: self.copy_selected(g, silent=True))
         tree.bind("<Button-3>", lambda e, g=game: self._show_context_menu(e, g))
@@ -363,7 +361,7 @@ class LottoApp(tk.Tk):
             "Note: Bonus (Top Prob) is based on current stats; run Update History first.\n"
         ); txt.insert("end", howto_steps); txt.configure(state="disabled")
         about = tk.Frame(wrapper, bg="white"); wrapper.add(about, text="About")
-        tk.Label(about, text=f"Copyright © 2025 SERC Professional Services", bg="white", font=("Segoe UI", 11)).pack(pady=12)
+        tk.Label(about, text="Copyright © 2025 SERC Professional Services\nBuilt with ChatGPT-5", bg="white", font=("Segoe UI", 11)).pack(pady=12)
 
     def _build_history_tab(self, root):
         top = tk.Frame(root, bg="white"); top.pack(fill="x", padx=12, pady=10)
@@ -380,7 +378,6 @@ class LottoApp(tk.Tk):
         cfg = GAMES[game]
         rnd = random.Random()
         lines = [sorted(rnd.sample(range(1, cfg['max_n']+1), cfg['count'])) for _ in range(3)]
-        # Bonus needs stats (balanced weighting). If none, skip but show a hint.
         bonus_line = None
         stats = self.stats_cache.get(game)
         if stats:
